@@ -129,9 +129,9 @@ function draw_drawing()
 	end
 
 	-- draw mouse cursor
-	spr(1 + mode.selected, m_x, m_y)
+	spr(1 + mode.selected, m_x - 1, m_y - 1)
 	-- draw current color indicator
-	pset(m_x, m_y, cur_color.selected)
+	pset(m_x - 1, m_y - 1, cur_color.selected)
 
 	if debug then
 		print(m_x .. ", " .. m_y, 0, 0)
