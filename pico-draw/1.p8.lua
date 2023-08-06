@@ -1,7 +1,7 @@
 --  drawing screen
 
 function init_drawing()
-	mode = make_cursor(3)
+	mode = make_cursor(4)
 
 	-- line drawing
 	line_start_x = nil
@@ -15,12 +15,25 @@ function init_drawing()
 	dx_val = {0, 1, 0, -1}
 	dy_val = {-1, 0, 1, 0}
 
+	draw_speed = 5
+
+	coroutines = {}
+
 	debug = false
     reset_field()
 end
 
 function update_drawing()
 	in_bounds = is_inbounds(m_x, m_y)
+
+	-- continue our coroutines
+	for c in all(coroutines) do
+		if costatus(c) == "dead" then
+			del(coroutines, c)
+		else
+			coresume(c)
+		end
+	end
 
 	-- if left click or 🅾️
 	-- set color on field
@@ -36,14 +49,26 @@ function update_drawing()
 
 				printh("set start to " .. line_start_x .. ", " .. line_start_y)
 			else
-				draw_line(line_start_x, line_start_y, m_x, m_y)
+				local c = cocreate(draw_line)
+				coresume(c, line_start_x, line_start_y, m_x, m_y)
+				add(coroutines, c)
 				printh("set end to " .. m_x .. ", " .. m_y)
 
 				line_start_x = nil
 				line_start_y = nil
 			end
 		elseif mode.selected == 2 then
-			flood_fill(m_x, m_y, field[m_x][m_y])
+			replace_color = field[m_x][m_y]
+			-- do not flood fill if trying to replace color with itself!
+			-- it wouldn't have any effect, and also causes infinite recursion
+			if not (replace_color == cur_color.selected) then
+				local fill_cor = cocreate(flood_fill)
+				coresume(fill_cor, m_x, m_y, replace_color)
+				add(coroutines, fill_cor)
+			end
+		elseif mode.selected == 3 then
+			cur_color.selected = field[m_x][m_y]
+			mode.selected = 0
 		end
 	end
 
@@ -85,6 +110,7 @@ function draw_drawing()
 	if debug then
 		print(m_x .. ", " .. m_y, 0, 0)
 		print("mode = " .. mode.selected, 0, 8)
+		print("color = " .. cur_color.selected, 0, 16)
 	end
 end
 
@@ -137,6 +163,13 @@ function plot_line_low(x0, y0, x1, y1)
         else
             D = D + 2 * dy
         end
+
+		if line_speed.is_finished() then
+			line_speed.reset()
+			yield()
+		end
+
+		line_speed.subtract(1)
 	end
 end
 
@@ -159,10 +192,19 @@ function plot_line_high(x0, y0, x1, y1)
         else
             D = D + 2 * dx
         end
+
+		if line_speed.is_finished() then
+			line_speed.reset()
+			yield()
+		end
+
+		line_speed.subtract(1)
 	end
 end
 
 function draw_line(x0, y0, x1, y1)
+	line_speed = make_countdown(draw_speed)
+
 	if abs(y1 - y0) < abs(x1 - x0) then
         if x0 > x1 then
             plot_line_low(x1, y1, x0, y0)
@@ -182,14 +224,36 @@ end
 -- https://en.wikipedia.org/wiki/Flood_fill
 -- adapted from https://github.com/Rayquaza01/minesweeper/blob/1edfc1f061032966f668cb0baf0b1f6ec6f63197/minesweeper/3.p8.lua#L112
 
-function flood_fill(x, y, color)
-	for d = 1, 4, 1 do
-		adj = find_adjacent(x, y, d)
-		if adj then
-			if field[adj.x][adj.y] == color then
-				field[adj.x][adj.y] = cur_color.selected
-				flood_fill(adj.x, adj.y, color)
+function flood_fill(x, y, replace_color)
+	local fill_speed = make_countdown(draw_speed)
+
+	pos = {}
+	pos.x = x
+	pos.y = y
+
+	local stack = {}
+	add(stack, pos)
+
+	printh("stack len: " .. #stack)
+	while #stack > 0 do
+		top = pop(stack)
+		printh("stack value " .. top.x .. ", " .. top.y)
+		if field[top.x][top.y] == replace_color then
+			for d = 1, 4, 1 do
+				adj = find_adjacent(top.x, top.y, d)
+				if adj then
+					add(stack, adj)
+				end
 			end
+			field[top.x][top.y] = cur_color.selected
+
+			if fill_speed.is_finished() then
+				fill_speed.reset()
+				yield()
+			end
+
+			fill_speed.subtract(1)
 		end
 	end
+
 end

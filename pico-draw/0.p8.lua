@@ -46,6 +46,39 @@ function make_cursor(n)
 	return this
 end
 
+function make_countdown(n)
+	local this = {}
+	-- maximum value of countdown
+	this.max = n
+	-- current value
+	this.val = n
+	-- is enabled
+	this.enabled = true
+
+	-- subtract s from current value
+	this.subtract = function(s)
+		if (this.enabled) this.val -= s
+	end
+
+	-- reset current value to max
+	this.reset = function()
+		this.val = this.max
+	end
+
+	-- if current value less than 0, reset countdown
+	-- and return true
+	this.is_finished = function()
+		if (this.val <= 0) then
+			this.reset()
+			return true
+		end
+		return false
+	end
+
+	return this
+end
+
+
 function reset_field()
 	field = {}
 	for i = 1, 64, 1 do
@@ -75,4 +108,10 @@ end
 
 function change_game_state(v)
 	gamestate = v
+end
+
+function pop(stack)
+	local v = stack[#stack]
+	stack[#stack] = nil
+	return v
 end
