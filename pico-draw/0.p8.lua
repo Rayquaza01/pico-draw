@@ -20,6 +20,10 @@ function _update()
 
 	if gamestate == 0 then
 		update_drawing()
+	elseif gamestate == 1 then
+		update_menu()
+	elseif gamestate == 2 then
+		update_credits()
 	end
 
 end
@@ -29,6 +33,10 @@ function _draw()
 
 	if gamestate == 0 then
 		draw_drawing()
+	elseif gamestate == 1 then
+		draw_menu()
+	elseif gamestate == 2 then
+		draw_credits()
 	end
 end
 
@@ -97,6 +105,9 @@ function mouse_update()
 	rmb_prev = rmb
 	m_x = stat(32)
 	m_y = stat(33)
+
+	m_cell_x = flr(m_x / 8)
+	m_cell_y = flr(m_y / 8)
 	lmb = (mstats & 1) == 1
 	rmb = (mstats & 2) == 2
 	mmb = (mstats & 4) == 4

@@ -114,6 +114,10 @@ function update_drawing()
 		debug = not debug
 	end
 
+	if btnp(⬅️) then
+		gamestate = 1
+	end
+
 	if btnp(🅾️) then
 		mode.add(1)
 	end
