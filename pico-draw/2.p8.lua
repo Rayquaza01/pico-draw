@@ -34,11 +34,15 @@ end
 function draw_menu()
     map(0, 0)
 	spr(1, m_x - 1, m_y - 1)
+
+    print("tools", 2 * 8, 2 * 8, 0)
+
+    print("colors", 2 * 8, 5 * 8, 0)
 end
 
 function update_credits()
-    if btnp(⬅️) then
-        gamestate = 0
+    if btnp(⬇️) then
+        gamestate = 1
     end
 end
 
