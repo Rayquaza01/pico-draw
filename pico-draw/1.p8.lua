@@ -104,22 +104,30 @@ function update_drawing()
 		cur_color.add(1)
 	end
 
+	if btnp(🅾️) then
+		cur_color.add(-1)
+	end
+
 	-- if middle click or ⬇️ (press)
 	-- reset field
-	if btnp(⬇️) or mmbp then
+	if mmbp then
 		reset_field()
 	end
 
-	if btnp(➡️) then
+	if btnp(⬆️) then
 		debug = not debug
 	end
 
-	if btnp(⬅️) then
+	if btnp(⬇️) then
 		gamestate = 1
 	end
 
-	if btnp(🅾️) then
+	if btnp(➡️) then
 		mode.add(1)
+	end
+
+	if btnp(⬅️) then
+		mode.add(-1)
 	end
 end
 
