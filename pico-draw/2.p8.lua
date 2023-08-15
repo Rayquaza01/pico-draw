@@ -55,4 +55,6 @@ function draw_credits()
     print("by rayquaza01", 1, 12 + 2 * 8, 3)
 
     print("⬇️ to close", 1, 12 + 5 * 8, 0)
+
+	spr(1, m_x - 1, m_y - 1)
 end
